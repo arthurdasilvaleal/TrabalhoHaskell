@@ -1,0 +1,9 @@
+digraph Semaforo {
+  Vermelho -> VermelhoAmarelo [label="Pulso"];
+  VermelhoAmarelo -> Verde [label="Pulso"];
+  Verde -> Amarelo [label="Pulso"];
+  Amarelo -> Vermelho [label="Pulso"];
+  { Vermelho VermelhoAmarelo Verde Amarelo }
+  Emergencia [shape=octagon, label="Emergencia"];
+  Emergencia -> Vermelho [label="Emergencia"];
+}

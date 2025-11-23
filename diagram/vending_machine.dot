@@ -1,0 +1,5 @@
+digraph MaquinaVenda {
+  SemCredito -> ComCredito [label="InserirMoeda"];
+  ComCredito -> ComCredito [label="InserirMoeda"];
+  ComCredito -> SemCredito [label="Selecionar / Cancelar"];
+}
