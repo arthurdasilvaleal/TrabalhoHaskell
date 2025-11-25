@@ -1,0 +1,9 @@
+{
+  "name": "fsm-slides",
+  "version": "1.0.0",
+  "description": "Apresentação FSM em Haskell com Reveal.js",
+  "scripts": {
+    "start": "npx serve .",
+    "slides": "npx serve . -o"
+  }
+}

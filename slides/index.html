@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FSM em Haskell - Apresentação</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/dracula.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+        .reveal pre { font-size: 0.55em; }
+        .reveal code { font-family: 'Fira Code', monospace; }
+        .reveal table { font-size: 0.7em; }
+        .reveal .highlight { color: #50fa7b; }
+        .reveal .warning { color: #ffb86c; }
+        .reveal ul { text-align: left; }
+        .reveal section img { max-height: 400px; }
+        .two-columns { display: flex; gap: 2em; }
+        .two-columns > div { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            
+            <!-- Slide 1: Título -->
+            <section>
+                <h1>🔄 Máquinas de Estados Finitos</h1>
+                <h3>em Haskell</h3>
+                <p>Trabalho Prático - 6º Ciclo</p>
+                <p><small>Arthur da Silva Leal</small></p>
+                <p><small><a href="https://github.com/arthurdasilvaleal/TrabalhoHaskell">github.com/arthurdasilvaleal/TrabalhoHaskell</a></small></p>
+            </section>
+
+            <!-- Slide 2: O que é FSM -->
+            <section>
+                <h2>O que é uma FSM?</h2>
+                <p><strong>Máquina de Estados Finitos</strong> é um modelo matemático que:</p>
+                <ul>
+                    <li>Possui um <span class="highlight">número finito de estados</span></li>
+                    <li>Está em <span class="highlight">exatamente um estado</span> por vez</li>
+                    <li>Muda de estado em resposta a <span class="highlight">entradas externas</span></li>
+                    <li>Produz <span class="highlight">saídas</span> baseadas nas transições</li>
+                </ul>
+            </section>
+
+            <!-- Slide 3: Aplicações -->
+            <section>
+                <h2>Aplicações no Mundo Real</h2>
+                <div class="two-columns">
+                    <div>
+                        <ul>
+                            <li>🚦 Semáforos de trânsito</li>
+                            <li>🚪 Portas automáticas</li>
+                            <li>🥤 Máquinas de venda</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul>
+                            <li>🌐 Protocolos de rede</li>
+                            <li>🎮 Jogos (NPCs)</li>
+                            <li>🔐 Autenticação</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: Estrutura do Projeto -->
+            <section>
+                <h2>📁 Estrutura do Projeto</h2>
+                <pre><code class="language-plaintext">fsm-haskell/
+├── src/
+│   └── FSM.hs              ← Biblioteca genérica
+├── app/
+│   └── Main.hs             ← Exemplos e testes
+├── diagram/
+│   ├── porta_automatica.dot/png
+│   └── vending_machine.dot/png
+└── README.md</code></pre>
+            </section>
+
+            <!-- Slide 5: Tipo FSM -->
+            <section>
+                <h2>🧬 O Tipo FSM</h2>
+                <pre><code class="language-haskell">newtype FSM s i o = FSM { step :: s -> i -> (s, o) }</code></pre>
+                <table>
+                    <tr><td><code>s</code></td><td>→ tipo do <strong>estado</strong></td></tr>
+                    <tr><td><code>i</code></td><td>→ tipo da <strong>entrada</strong></td></tr>
+                    <tr><td><code>o</code></td><td>→ tipo da <strong>saída</strong></td></tr>
+                </table>
+                <p><small>Uma função pura que recebe estado + entrada e retorna novo estado + saída</small></p>
+            </section>
+
+            <!-- Slide 6: Funções da Biblioteca -->
+            <section>
+                <h2>⚙️ Funções Disponíveis</h2>
+                <table>
+                    <thead>
+                        <tr><th>Função</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>step</code></td><td>Executa um passo da FSM</td></tr>
+                        <tr><td><code>runFSM</code></td><td>Executa lista de entradas, retorna estado final</td></tr>
+                        <tr><td><code>runFSMWithOutputs</code></td><td>Executa e coleta todos os estados/saídas</td></tr>
+                        <tr><td><code>composeFSMs</code></td><td>Compõe duas FSMs em paralelo</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Slide 7: Porta Automática - Intro -->
+            <section>
+                <h2>🚪 Exemplo 1: Porta Automática</h2>
+                <div class="two-columns">
+                    <div>
+                        <h4>Estados:</h4>
+                        <ul>
+                            <li><code>Fechada</code></li>
+                            <li><code>Abrindo</code></li>
+                            <li><code>Aberta</code></li>
+                            <li><code>Fechando</code></li>
+                            <li><code>Bloqueada</code></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Entradas:</h4>
+                        <ul>
+                            <li><code>Sensor</code> - detecta presença</li>
+                            <li><code>Timeout</code> - tempo expirado</li>
+                            <li><code>Bloquear</code></li>
+                            <li><code>Desbloquear</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 8: Porta - Diagrama -->
+            <section>
+                <h2>🚪 Diagrama da Porta</h2>
+                <img src="../diagram/porta_automatica.png" alt="Diagrama Porta Automática">
+            </section>
+
+            <!-- Slide 9: Porta - Código -->
+            <section>
+                <h2>🚪 Código da Porta</h2>
+                <pre><code class="language-haskell">portaAutomatica :: FSM PortaState PortaInput PortaOutput
+portaAutomatica = FSM $ \s input -> case (s, input) of
+  (_, Bloquear)           -> (Bloqueada, Status "Porta bloqueada")
+  (Bloqueada, Desbloquear)-> (Fechada, Status "Desbloqueada")
+  (Fechada, Sensor)       -> (Abrindo, Status "Abrindo porta")
+  (Abrindo, Timeout)      -> (Aberta, Status "Porta aberta")
+  (Aberta, Timeout)       -> (Fechando, Status "Fechando porta")
+  (Aberta, Sensor)        -> (Aberta, Status "Mantendo aberta")
+  (Fechando, Sensor)      -> (Abrindo, Status "Reabrindo!")
+  (Fechando, Timeout)     -> (Fechada, Status "Porta fechada")
+  (_, _)                  -> (s, Status "Sem alteração")</code></pre>
+            </section>
+
+            <!-- Slide 10: Máquina de Venda - Intro -->
+            <section>
+                <h2>🥤 Exemplo 2: Máquina de Venda</h2>
+                <div class="two-columns">
+                    <div>
+                        <h4>Estados:</h4>
+                        <ul>
+                            <li><code>SemCredito</code></li>
+                            <li><code>ComCredito Int</code></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Entradas:</h4>
+                        <ul>
+                            <li><code>InserirMoeda Int</code></li>
+                            <li><code>Selecionar</code></li>
+                            <li><code>Cancelar</code></li>
+                        </ul>
+                    </div>
+                </div>
+                <p><small>Custo do produto: <span class="highlight">2 unidades</span></small></p>
+            </section>
+
+            <!-- Slide 11: Máquina - Diagrama -->
+            <section>
+                <h2>🥤 Diagrama da Máquina</h2>
+                <img src="../diagram/vending_machine.png" alt="Diagrama Máquina de Venda">
+            </section>
+
+            <!-- Slide 12: Máquina - Código -->
+            <section>
+                <h2>🥤 Código da Máquina</h2>
+                <pre><code class="language-haskell">maquinaVenda :: FSM VMState VMInput VMOutput
+maquinaVenda = FSM $ \s input -> case (s, input) of
+  (SemCredito, InserirMoeda n)  -> 
+    (ComCredito n, Mensagem $ "Inserido: " ++ show n)
+  (ComCredito c, InserirMoeda n) -> 
+    (ComCredito (c+n), Mensagem $ "Total: " ++ show (c+n))
+  (ComCredito c, Selecionar) -> 
+    if c >= 2
+    then (SemCredito, Mensagem $ "Dispensado! Troco: " ++ show (c-2))
+    else (ComCredito c, Mensagem "Crédito insuficiente")
+  (ComCredito c, Cancelar) -> 
+    (SemCredito, Mensagem $ "Devolvido: " ++ show c)
+  (SemCredito, _) -> (SemCredito, Mensagem "Sem crédito")</code></pre>
+            </section>
+
+            <!-- Slide 13: Composição -->
+            <section>
+                <h2>🔗 Composição de FSMs</h2>
+                <pre><code class="language-haskell">composeFSMs :: FSM s1 i o1 -> FSM s2 i o2 
+            -> FSM (s1, s2) i (o1, o2)</code></pre>
+                <p>Executa <span class="highlight">duas FSMs em paralelo</span> com a mesma entrada!</p>
+                <pre><code class="language-haskell">-- Exemplo: duas portas sincronizadas
+let duasPortas = composeFSMs portaAutomatica portaAutomatica
+    resultado = runFSMWithOutputs duasPortas 
+                  (Fechada, Aberta) [Sensor, Timeout]</code></pre>
+            </section>
+
+            <!-- Slide 14: Demonstração -->
+            <section>
+                <h2>▶️ Demonstração</h2>
+                <pre><code class="language-plaintext">Porta Automática (ciclo normal):
+Inicial: Fechada
+  → Abrindo  | "Sensor detectado: Abrindo porta"
+  → Aberta   | "Porta totalmente aberta"
+  → Fechando | "Tempo expirado: Fechando porta"
+  → Fechada  | "Porta totalmente fechada"
+
+Máquina de Venda:
+Inicial: SemCredito
+  → ComCredito 1 | "Inserido: 1"
+  → ComCredito 2 | "Total inserido: 2"
+  → SemCredito   | "Dispensado. Troco: 0"</code></pre>
+            </section>
+
+            <!-- Slide 15: Testes -->
+            <section>
+                <h2>✅ Testes Implementados</h2>
+                <div class="two-columns">
+                    <div>
+                        <h4>Porta Automática:</h4>
+                        <ul>
+                            <li>✅ Ciclo normal</li>
+                            <li>✅ Sensor durante fechamento</li>
+                            <li>✅ Bloqueio/desbloqueio</li>
+                            <li>✅ Múltiplos sensores</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Máquina de Venda:</h4>
+                        <ul>
+                            <li>✅ Compra com crédito exato</li>
+                            <li>✅ Compra com troco</li>
+                            <li>✅ Crédito insuficiente</li>
+                            <li>✅ Cancelamento</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 16: Por que Haskell -->
+            <section>
+                <h2>🤔 Por que Haskell?</h2>
+                <div class="two-columns">
+                    <div>
+                        <h4 class="highlight">Vantagens:</h4>
+                        <ul>
+                            <li>Função <code>step</code> é pura</li>
+                            <li>Tipos algébricos claros</li>
+                            <li>Pattern matching legível</li>
+                            <li>Composição natural</li>
+                            <li>Sem efeitos colaterais</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="warning">Desafios:</h4>
+                        <ul>
+                            <li>Curva de aprendizado</li>
+                            <li>IO requer adaptação</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 17: Como Executar -->
+            <section>
+                <h2>💻 Como Executar</h2>
+                <pre><code class="language-bash"># Clonar o repositório
+git clone https://github.com/arthurdasilvaleal/TrabalhoHaskell.git
+cd TrabalhoHaskell/fsm-haskell
+
+# Executar interpretado
+runghc -isrc app/Main.hs
+
+# Ou compilar
+ghc -isrc app/Main.hs -o fsm-demo
+./fsm-demo</code></pre>
+            </section>
+
+            <!-- Slide 18: Extensões -->
+            <section>
+                <h2>🚀 Extensões Possíveis</h2>
+                <ul>
+                    <li>Transformar em <strong>State Monad</strong> para integrar IO</li>
+                    <li>Adicionar <strong>validação</strong> de transições</li>
+                    <li><strong>Serialização</strong> - salvar/carregar estado</li>
+                    <li><strong>GUI</strong> para visualização em tempo real</li>
+                    <li>Mais FSMs: elevador, protocolo TCP, etc.</li>
+                </ul>
+            </section>
+
+            <!-- Slide 19: Conclusão -->
+            <section>
+                <h2>📌 Conclusão</h2>
+                <ul>
+                    <li>FSMs são um <span class="highlight">modelo poderoso</span> para sistemas reativos</li>
+                    <li>Haskell oferece <span class="highlight">expressividade</span> ideal</li>
+                    <li>Demonstramos <span class="highlight">dois exemplos práticos</span></li>
+                    <li><span class="highlight">Composição</span> permite sistemas complexos</li>
+                    <li><span class="highlight">Testes</span> garantem comportamento correto</li>
+                </ul>
+            </section>
+
+            <!-- Slide 20: Obrigado -->
+            <section>
+                <h1>Obrigado! 🎉</h1>
+                <p>Perguntas?</p>
+                <br>
+                <p><a href="https://github.com/arthurdasilvaleal/TrabalhoHaskell">
+                    github.com/arthurdasilvaleal/TrabalhoHaskell
+                </a></p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/notes/notes.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            transition: 'slide',
+            plugins: [ RevealHighlight, RevealNotes ]
+        });
+    </script>
+</body>
+</html>
