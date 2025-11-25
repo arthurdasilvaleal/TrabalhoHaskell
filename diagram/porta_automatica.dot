@@ -1,0 +1,28 @@
+digraph PortaAutomatica {
+  // Configuração do grafo
+  rankdir=LR;
+  node [shape=circle];
+  
+  // Estados
+  Fechada [shape=doublecircle];
+  Abrindo;
+  Aberta;
+  Fechando;
+  Bloqueada [shape=octagon, style=filled, fillcolor=lightgray];
+  
+  // Transições normais
+  Fechada -> Abrindo [label="Sensor"];
+  Abrindo -> Aberta [label="Timeout"];
+  Aberta -> Fechando [label="Timeout"];
+  Aberta -> Aberta [label="Sensor"];
+  Fechando -> Fechada [label="Timeout"];
+  Fechando -> Abrindo [label="Sensor"];
+  
+  // Transições de bloqueio/desbloqueio
+  Fechada -> Bloqueada [label="Bloquear", style=dashed, color=red];
+  Abrindo -> Bloqueada [label="Bloquear", style=dashed, color=red];
+  Aberta -> Bloqueada [label="Bloquear", style=dashed, color=red];
+  Fechando -> Bloqueada [label="Bloquear", style=dashed, color=red];
+  Bloqueada -> Bloqueada [label="Sensor/Timeout", style=dotted];
+  Bloqueada -> Fechada [label="Desbloquear", style=dashed, color=green];
+}
